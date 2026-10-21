@@ -1,0 +1,13 @@
+// 1. Gambar Create Data (POST Image Valid - hp.jpg)
+$b64 = [Convert]::ToBase64String([IO.File]::ReadAllBytes("product-service\asset\hp.jpg"))
+Set-Content -LiteralPath "product-service\asset\hp.jpg.b64" -Value $b64 -Encoding ascii -NoNewline
+(Get-Item "product-service\asset\hp.jpg.b64").Length
+
+// 2. Gambar Large Data (POST Error > 2MB - hp_Large)
+$b64 = [Convert]::ToBase64String([IO.File]::ReadAllBytes("product-service\asset\hp.jpg"))
+$b64Large = ($b64) * 40
+Set-Content -LiteralPath "product-service\asset\hp_Large.jpg.b64" -Value $b64Large -Encoding ascii -NoNewline
+(Get-Item "product-service\asset\hp_Large.jpg.b64").Length
+
+
+
