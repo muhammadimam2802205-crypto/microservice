@@ -8,6 +8,7 @@ use App\Exceptions\InsufficientStockException;
 use App\Exceptions\OrderNotFoundException;
 use App\Exceptions\ProductServiceUnavailableException;
 use App\Exceptions\ProductUnavailableException;
+use App\Http\Requests\ListOrdersRequest;
 use App\Http\Requests\StoreOrderRequest;
 use App\Services\OrderService;
 use Illuminate\Http\JsonResponse;
@@ -75,12 +76,14 @@ class OrderController extends Controller
     }
 
     // GET /orders/user/{userId} — daftar pesanan milik satu user.
-    public function byUser(int $userId): JsonResponse
+    public function byUser(int $userId, ListOrdersRequest $request): JsonResponse
     {
         try {
+            $status = $request->validated()['status'] ?? null;
+
             return response()->json([
                 'message' => 'Berhasil mengambil daftar pesanan',
-                'data' => $this->orderService->listForUser($userId),
+                'data' => $this->orderService->listForUser($userId, $status),
             ]);
         } catch (Throwable $e) {
             return $this->errorResponse($e, 'mengambil daftar pesanan');
