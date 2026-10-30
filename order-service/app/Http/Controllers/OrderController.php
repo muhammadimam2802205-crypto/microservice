@@ -74,6 +74,19 @@ class OrderController extends Controller
         }
     }
 
+    // GET /orders/user/{userId} — daftar pesanan milik satu user.
+    public function byUser(int $userId): JsonResponse
+    {
+        try {
+            return response()->json([
+                'message' => 'Berhasil mengambil daftar pesanan',
+                'data' => $this->orderService->listForUser($userId),
+            ]);
+        } catch (Throwable $e) {
+            return $this->errorResponse($e, 'mengambil daftar pesanan');
+        }
+    }
+
     // Menangani error tak terduga dan mencatat detailnya ke log.
     private function errorResponse(Throwable $e, string $action): JsonResponse
     {

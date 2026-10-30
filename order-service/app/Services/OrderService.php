@@ -124,6 +124,25 @@ class OrderService
     }
 
     /**
+     * Mengambil daftar pesanan milik satu user, terbaru di atas.
+     *
+     * Relasi items di-eager load agar tidak terjadi query N+1. Filter status
+     * belum diterapkan di sini (menyusul pada T13).
+     *
+     * @return list<array{id: int, user_id: int, status: string, total_amount: float, items: list<array{product_id: int, product_name: string, unit_price: float, quantity: int, subtotal: float}>, created_at: mixed, updated_at: mixed}>
+     */
+    public function listForUser(int $userId): array
+    {
+        return Order::with('items')
+            ->where('user_id', $userId)
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->get()
+            ->map(fn (Order $order): array => $this->toPayload($order))
+            ->all();
+    }
+
+    /**
      * Bentuk payload pesanan lengkap sesuai kontrak response.
      *
      * @return array{id: int, user_id: int, status: string, total_amount: float, items: list<array{product_id: int, product_name: string, unit_price: float, quantity: int, subtotal: float}>, created_at: mixed, updated_at: mixed}

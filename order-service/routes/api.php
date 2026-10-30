@@ -9,6 +9,8 @@ Route::get('/health', fn () => response()->json([
     'service' => 'order-service',
 ]));
 
+// Didaftarkan sebelum /orders/{id} agar path tidak ambigu.
+Route::get('/orders/user/{userId}', [OrderController::class, 'byUser'])->whereNumber('userId');
 Route::get('/orders/{id}', [OrderController::class, 'show'])->whereNumber('id');
 Route::post('/orders', [OrderController::class, 'store']);
 
