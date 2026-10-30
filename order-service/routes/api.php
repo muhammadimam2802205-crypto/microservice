@@ -2,4 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 
-// Endpoint order-service ditambahkan bertahap mulai T08 (GET /health).
+// Endpoint cek kesehatan service (closure, tanpa logika bisnis).
+Route::get('/health', fn () => response()->json([
+    'status' => 'ok',
+    'service' => 'order-service',
+]));
+
+// Endpoint order-service lain ditambahkan bertahap mulai T10.
