@@ -9,6 +9,7 @@ Route::get('/health', fn () => response()->json([
     'service' => 'order-service',
 ]));
 
+Route::get('/orders/{id}', [OrderController::class, 'show'])->whereNumber('id');
 Route::post('/orders', [OrderController::class, 'store']);
 
-// Endpoint order-service lain ditambahkan bertahap mulai T11.
+// Endpoint order-service lain ditambahkan bertahap mulai T12.

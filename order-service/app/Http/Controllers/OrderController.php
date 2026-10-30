@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exceptions\CartServiceUnavailableException;
 use App\Exceptions\EmptyCartException;
 use App\Exceptions\InsufficientStockException;
+use App\Exceptions\OrderNotFoundException;
 use App\Exceptions\ProductServiceUnavailableException;
 use App\Exceptions\ProductUnavailableException;
 use App\Http\Requests\StoreOrderRequest;
@@ -52,21 +53,38 @@ class OrderController extends Controller
 
             return response()->json($body, 503);
         } catch (Throwable $e) {
-            return $this->errorResponse($e);
+            return $this->errorResponse($e, 'membuat pesanan');
+        }
+    }
+
+    // GET /orders/{id} — detail satu pesanan beserta itemnya.
+    public function show(int $id): JsonResponse
+    {
+        try {
+            return response()->json([
+                'message' => 'Berhasil mengambil pesanan',
+                'data' => $this->orderService->find($id),
+            ]);
+        } catch (OrderNotFoundException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 404);
+        } catch (Throwable $e) {
+            return $this->errorResponse($e, 'mengambil pesanan');
         }
     }
 
     // Menangani error tak terduga dan mencatat detailnya ke log.
-    private function errorResponse(Throwable $e): JsonResponse
+    private function errorResponse(Throwable $e, string $action): JsonResponse
     {
-        Log::error('Gagal membuat pesanan', [
+        Log::error("Gagal {$action}", [
             'error' => $e->getMessage(),
             'file' => $e->getFile(),
             'line' => $e->getLine(),
         ]);
 
         $body = [
-            'message' => 'Gagal membuat pesanan',
+            'message' => "Gagal {$action}",
         ];
 
         // Detail error hanya dikirim jika APP_DEBUG=true.

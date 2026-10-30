@@ -6,6 +6,7 @@ use App\Clients\CartServiceClient;
 use App\Clients\ProductServiceClient;
 use App\Exceptions\EmptyCartException;
 use App\Exceptions\InsufficientStockException;
+use App\Exceptions\OrderNotFoundException;
 use App\Exceptions\ProductUnavailableException;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -99,6 +100,24 @@ class OrderService
                 'user_id' => $userId,
                 'error' => $e->getMessage(),
             ]);
+        }
+
+        return $this->toPayload($order);
+    }
+
+    /**
+     * Mengambil satu pesanan lengkap dengan itemnya.
+     *
+     * Relasi items di-eager load agar tidak terjadi query N+1.
+     *
+     * @return array{id: int, user_id: int, status: string, total_amount: float, items: list<array{product_id: int, product_name: string, unit_price: float, quantity: int, subtotal: float}>, created_at: mixed, updated_at: mixed}
+     */
+    public function find(int $id): array
+    {
+        $order = Order::with('items')->find($id);
+
+        if ($order === null) {
+            throw new OrderNotFoundException($id);
         }
 
         return $this->toPayload($order);
