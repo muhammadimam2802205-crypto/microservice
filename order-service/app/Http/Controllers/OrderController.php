@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exceptions\CartServiceUnavailableException;
 use App\Exceptions\EmptyCartException;
 use App\Exceptions\InsufficientStockException;
+use App\Exceptions\OrderNotPayableException;
 use App\Exceptions\OrderNotFoundException;
 use App\Exceptions\ProductServiceUnavailableException;
 use App\Exceptions\ProductUnavailableException;
@@ -87,6 +88,27 @@ class OrderController extends Controller
             ]);
         } catch (Throwable $e) {
             return $this->errorResponse($e, 'mengambil daftar pesanan');
+        }
+    }
+
+    // PATCH /orders/{id}/pay — ubah status pesanan menjadi PAID.
+    public function pay(int $id): JsonResponse
+    {
+        try {
+            return response()->json([
+                'message' => 'Pesanan berhasil dibayar',
+                'data' => $this->orderService->pay($id),
+            ]);
+        } catch (OrderNotFoundException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 404);
+        } catch (OrderNotPayableException $e) {
+            return response()->json([
+                'message' => $e->getMessage(),
+            ], 409);
+        } catch (Throwable $e) {
+            return $this->errorResponse($e, 'membayar pesanan');
         }
     }
 

@@ -6,6 +6,7 @@ use App\Clients\CartServiceClient;
 use App\Clients\ProductServiceClient;
 use App\Exceptions\EmptyCartException;
 use App\Exceptions\InsufficientStockException;
+use App\Exceptions\OrderNotPayableException;
 use App\Exceptions\OrderNotFoundException;
 use App\Exceptions\ProductUnavailableException;
 use App\Models\Order;
@@ -145,6 +146,32 @@ class OrderService
             ->get()
             ->map(fn (Order $order): array => $this->toPayload($order))
             ->all();
+    }
+
+    /**
+     * Mengubah status pesanan menjadi PAID.
+     *
+     * Hanya pesanan berstatus PENDING yang boleh dibayar. Operasi ini tidak
+     * mengubah total_amount maupun items (snapshot tetap dipertahankan).
+     *
+     * @return array{id: int, user_id: int, status: string, total_amount: float, items: list<array{product_id: int, product_name: string, unit_price: float, quantity: int, subtotal: float}>, created_at: mixed, updated_at: mixed}
+     */
+    public function pay(int $id): array
+    {
+        $order = Order::with('items')->find($id);
+
+        if ($order === null) {
+            throw new OrderNotFoundException($id);
+        }
+
+        if ($order->status !== 'PENDING') {
+            throw new OrderNotPayableException($order->status);
+        }
+
+        $order->status = 'PAID';
+        $order->save();
+
+        return $this->toPayload($order);
     }
 
     /**
