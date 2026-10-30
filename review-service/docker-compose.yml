@@ -1,4 +1,4 @@
-services:
+﻿services:
   review-service:
     build: .
     ports:
@@ -9,12 +9,13 @@ services:
       - FLASK_DEBUG=1
       - MONGO_URI=mongodb://appuser:apppassword@review-db:27017/?authSource=admin
       - MONGO_DB_NAME=reviewdb
-      - PRODUCT_SERVICE_URL=http://product-service:3000
+      - PRODUCT_SERVICE_URL=http://product-services:3000
     depends_on:
       review-db:
         condition: service_healthy
-      product-service:
-        condition: service_started
+    networks:
+      - default
+      - product-network
 
   review-db:
     image: mongo:7
@@ -32,39 +33,10 @@ services:
       start_period: 20s
       timeout: 5s
 
-  product-service:
-    build: ../product-service
-    ports:
-      - "3000:3000"
-    environment:
-      - DB_HOST=product-db
-      - DB_USER=appuser
-      - DB_PASSWORD=apppassword
-      - DB_NAME=productdb
-    depends_on:
-      product-db:
-        condition: service_healthy
-
-  product-db:
-    image: mysql:8.0
-    environment:
-      - MYSQL_ROOT_PASSWORD=rootpassword
-      - MYSQL_DATABASE=productdb
-      - MYSQL_USER=appuser
-      - MYSQL_PASSWORD=apppassword
-    ports:
-      - "3306:3306"
-    volumes:
-      - product-db-data:/var/lib/mysql
-      # PERBAIKAN ADA DI BARIS BAWAH INI: Mengarah ke folder ../database
-      - ../database:/docker-entrypoint-initdb.d
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "--host=localhost", "--user=root", "--password=rootpassword"]
-      interval: 10s
-      retries: 5
-      start_period: 30s
-      timeout: 5s
-
 volumes:
   review-db-data:
-  product-db-data:
+
+networks:
+  product-network:
+    external: true
+    name: mi-pdsku_default
