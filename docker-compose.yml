@@ -1,15 +1,16 @@
 services:
+  # Product Service (Node.js + MySQL)
   product-services:
-    build: 
+    build:
       context: ./product-service
-      dockerfile: Dockerfile
     ports:
       - "3000:3000"
     environment:
-      - DB_HOST=product-db
-      - DB_USER=appuser
-      - DB_PASSWORD=apppassword
-      - DB_NAME=productdb
+      DB_HOST: product-db
+      DB_USER: appuser
+      DB_PASSWORD: apppassword
+      DB_NAME: productdb
+      PORT: 3000
     depends_on:
       product-db:
         condition: service_healthy
@@ -17,18 +18,145 @@ services:
   product-db:
     image: mysql:8.0
     environment:
-      - MYSQL_DATABASE=productdb
-      - MYSQL_USER=appuser
-      - MYSQL_PASSWORD=apppassword
-      - MYSQL_ROOT_PASSWORD=rootpassword
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: productdb
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: apppassword
+    ports:
+      - "3306:3306"
     volumes:
       - product-db-data:/var/lib/mysql
       - ./database:/docker-entrypoint-initdb.d
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost","--user=root","--password=rootpassword"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "appuser", "-papppassword"]
       interval: 10s
       retries: 5
-      start_period: 30s
       timeout: 5s
+
+  # Cart Service (Laravel + PostgreSQL)
+  cart-service:
+    build:
+      context: ./cart-service
+    ports:
+      - "3001:3001"
+    environment:
+      APP_KEY: base64:dGVzdGtleWZvcmRlbW8xMjM0NTY3ODkwMTIzNDU2Nzg5MA==
+      APP_ENV: local
+      APP_DEBUG: "true"
+      LOG_CHANNEL: stderr
+      DB_CONNECTION: pgsql
+      DB_HOST: cart-db
+      DB_PORT: 5432
+      DB_DATABASE: cartdb
+      DB_USERNAME: appuser
+      DB_PASSWORD: apppassword
+      PRODUCT_SERVICE_BASE_URL: http://product-services:3000
+    depends_on:
+      cart-db:
+        condition: service_healthy
+      product-services:
+        condition: service_started
+
+  cart-db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: cartdb
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: apppassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - cart-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U appuser -d cartdb"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
+
+  # Review Service (Flask + MongoDB)
+  review-service:
+    build:
+      context: ./review-service
+    ports:
+      - "3002:3002"
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3002
+      FLASK_DEBUG: "1"
+      MONGO_URI: mongodb://appuser:apppassword@review-db:27017/?authSource=admin
+      MONGO_DB_NAME: reviewdb
+      PRODUCT_SERVICE_URL: http://product-services:3000
+    depends_on:
+      review-db:
+        condition: service_healthy
+      product-services:
+        condition: service_started
+
+  review-db:
+    image: mongo:7
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: appuser
+      MONGO_INITDB_ROOT_PASSWORD: apppassword
+    ports:
+      - "27017:27017"
+    volumes:
+      - review-db-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      retries: 5
+      start_period: 20s
+      timeout: 5s
+
+  # Order Service (Laravel + MySQL)
+  order-service:
+    build:
+      context: ./order-service
+    ports:
+      - "3003:3003"
+    environment:
+      APP_KEY: base64:b3JkZXJzZXJ2aWNla2V5MTIzNDU2Nzg5MDEyMzQ1Njc4OTA=
+      APP_ENV: local
+      APP_DEBUG: "true"
+      LOG_CHANNEL: stderr
+      LOG_LEVEL: debug
+      DB_CONNECTION: mysql
+      DB_HOST: order-db
+      DB_PORT: 3306
+      DB_DATABASE: orderdb
+      DB_USERNAME: appuser
+      DB_PASSWORD: apppassword
+      PRODUCT_SERVICE_BASE_URL: http://product-services:3000
+      PRODUCT_SERVICE_TIMEOUT: 5
+      CART_SERVICE_BASE_URL: http://cart-service:3001
+      CART_SERVICE_TIMEOUT: 5
+    depends_on:
+      order-db:
+        condition: service_healthy
+      product-services:
+        condition: service_started
+      cart-service:
+        condition: service_started
+
+  order-db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: orderdb
+      MYSQL_USER: appuser
+      MYSQL_PASSWORD: apppassword
+    ports:
+      - "3307:3306"
+    volumes:
+      - order-db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "appuser", "-papppassword"]
+      interval: 10s
+      retries: 5
+      timeout: 5s
+
 volumes:
   product-db-data:
+  cart-db-data:
+  review-db-data:
+  order-db-data:
