@@ -35,4 +35,24 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Service Lain
+    |--------------------------------------------------------------------------
+    |
+    | Alamat dan timeout setiap service dibaca dari environment variable.
+    | Timeout dipakai oleh lapisan client dan tidak boleh melebihi 5 detik.
+    |
+    */
+
+    'product' => [
+        'url' => env('PRODUCT_SERVICE_BASE_URL', 'http://localhost:3000'),
+        'timeout' => (int) env('PRODUCT_SERVICE_TIMEOUT', 5),
+    ],
+
+    'cart' => [
+        'url' => env('CART_SERVICE_BASE_URL', 'http://localhost:3001'),
+        'timeout' => (int) env('CART_SERVICE_TIMEOUT', 5),
+    ],
+
 ];
