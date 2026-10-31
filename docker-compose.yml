@@ -10,7 +10,9 @@ services:
       DB_USER: appuser
       DB_PASSWORD: apppassword
       DB_NAME: productdb
-      PORT: 3000
+      # Jangan set PORT di sini: wait-for-it menimpa variabel shell PORT
+      # (dari argumen "product-db:3306") sehingga Node ikut mendengarkan 3306.
+      # server.js sudah memakai default 3000.
     depends_on:
       product-db:
         condition: service_healthy
