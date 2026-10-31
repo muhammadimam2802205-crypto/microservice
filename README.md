@@ -16,6 +16,7 @@ daftar pesanan per user (dengan filter status), dan pembayaran pesanan. Service 
 apa adanya sesuai kontrak yang sudah ada dan **tidak diubah perilakunya**.
 
 ---
+</div>
 
 ## 1. Arsitektur
 
