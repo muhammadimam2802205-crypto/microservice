@@ -484,13 +484,4 @@ mi-pdsku/
 │   │   └── Services/           # OrderService
 │   ├── routes/api.php
 │   ├── database/migrations/
-│\    └── bootstrap/app.php       # apiPrefix '', handler 404 JSON
-└── uts/
-    ├── plan.md                 # rencana pengerjaan
-    ├── tasks.md                # daftar task + status commit
-    └── Soal_UTS_Microservices_Order_Service.docx
-```
-
----
-
-
+    └── bootstrap/app.php       # apiPrefix '', handler 404 JSON
