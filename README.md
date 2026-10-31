@@ -387,7 +387,7 @@ product-service `GET/POST/PUT/DELETE /products`, cart-service `POST /carts`,
 | `order-service` | `APP_ENV=local`, `APP_DEBUG=true`, `APP_KEY=<demo base64>`, `LOG_CHANNEL=stderr`, `LOG_LEVEL=debug`, `DB_HOST=order-db`, `DB_DATABASE=orderdb`, `PRODUCT_SERVICE_BASE_URL=http://product-services:3000`, `CART_SERVICE_BASE_URL=http://cart-service:3001` |
 | `cart-service` | `APP_KEY=<demo base64>`, `APP_ENV=local`, `APP_DEBUG=true`, `LOG_CHANNEL=stderr`, `DB_HOST=cart-db` (pgsql), `PRODUCT_SERVICE_BASE_URL=http://product-services:3000` |
 | `review-service` | `HOST=0.0.0.0`, `PORT=3002`, `MONGO_URI=mongodb://appuser:apppassword@review-db:27017/?authSource=admin`, `PRODUCT_SERVICE_URL=http://product-services:3000` |
-| `product-services` | `DB_HOST=product-db`, `DB_NAME=productdb`, `DB_USER=appuser`, `DB_PASSWORD=apppassword`, `PORT=3000` |
+| `product-services` | `DB_HOST=product-db`, `DB_NAME=productdb`, `DB_USER=appuser`, `DB_PASSWORD=apppassword`; `PORT` sengaja **tidak** di-set (default `3000` di `server.js`, karena `wait-for-it` menimpa variabel `PORT` dari argumen `product-db:3306`) |
 | Database | `MYSQL_ROOT_PASSWORD`, `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD`, `POSTGRES_*`, `MONGO_INITDB_ROOT_*` (kredensial demo) |
 
 ---
