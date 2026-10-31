@@ -25,12 +25,5 @@ RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 EXPOSE 3003
 
 # CMD dengan retry migration lalu serve
-CMD bash -c ' \
-    max_attempts=20; \
-    attempt=0; \
-    until php artisan migrate --force || [ $attempt -eq $max_attempts ]; do \
-        attempt=$((attempt + 1)); \
-        echo "Migration attempt $attempt/$max_attempts failed, retrying in 3 seconds..."; \
-        sleep 3; \
-    done && \
-    php artisan serve --host=0.0.0.0 --port=3003'
+# JSON satu baris: exec agar SIGTERM sampai ke php artisan serve (graceful shutdown).
+CMD ["sh", "-c", "max_attempts=20; attempt=0; until php artisan migrate --force || [ $attempt -eq $max_attempts ]; do attempt=$((attempt + 1)); echo \"Migration attempt $attempt/$max_attempts failed, retrying in 3 seconds...\"; sleep 3; done; exec php artisan serve --host=0.0.0.0 --port=3003"]

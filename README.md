@@ -1,3 +1,11 @@
+<div align="center">
+
+#  Muhammad Imam Al Ma'ruf
+
+## NIM: 2401161010
+
+---
+
 # UTS Microservices — Order Service
 
 Repositori ini berisi implementasi **order-service** (Laravel 13 / PHP 8.4) sebagai bagian dari
@@ -475,7 +483,7 @@ mi-pdsku/
 │   │   └── Services/           # OrderService
 │   ├── routes/api.php
 │   ├── database/migrations/
-│   └── bootstrap/app.php       # apiPrefix '', handler 404 JSON
+│\    └── bootstrap/app.php       # apiPrefix '', handler 404 JSON
 └── uts/
     ├── plan.md                 # rencana pengerjaan
     ├── tasks.md                # daftar task + status commit
@@ -484,21 +492,4 @@ mi-pdsku/
 
 ---
 
-## 7. Ringkasan Riwayat Pengerjaan
 
-Pengerjaan dibagi menjadi task berurutan, **satu task = satu commit = satu push**
-(lihat `uts/tasks.md` untuk SHA tiap commit):
-
-| Task | Isi |
-|---|---|
-| T01–T04 | Scaffold Laravel, konfigurasi env/DB, migration, model & relasi |
-| T05–T07 | Exception, client HTTP, Form Request |
-| T08–T10 | `GET /health`, logika checkout, `POST /orders` |
-| T11–T12 | `GET /orders/{id}`, `GET /orders/user/{userId}` |
-| T13 | Filter `?status=PENDING\|PAID` (422 bila tidak valid) |
-| T14 | `PATCH /orders/{id}/pay` |
-| T15 | Dockerfile order-service (PHP 8.4 + pdo_mysql) |
-| T16 | Rename `car-service` → `cart-service` |
-| T17 | `docker-compose.yml` gabungan |
-| T18 | README root (dokumen ini) |
-| T19–T22 | Verifikasi manual, uji clone baru, video demo, pengumpulan |
